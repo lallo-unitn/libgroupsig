@@ -115,7 +115,7 @@ typedef struct {
  * @var logger
  * @brief Must be initialized in the main program (if logging support is desired).
  */
-log_t logger;  
+extern log_t logger;  
 
 /* /\**  */
 /*  * @var log_priority */

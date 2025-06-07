@@ -56,7 +56,7 @@ typedef struct {
  * @var sysenv
  * @brief System wide shared data. Initialized by groupsig_init.
  */
-sysenv_t *sysenv;
+extern sysenv_t *sysenv;
 
 /** 
  * @fn sysenv_t* sysenv_init()

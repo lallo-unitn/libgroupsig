@@ -26,6 +26,8 @@
 #include "sysenv.h"
 #include "mem.h"
 
+sysenv_t *sysenv;
+
 static int _sysenv_seed(sysenv_t *sysenv, unsigned int seed) {
 
   unsigned int s;

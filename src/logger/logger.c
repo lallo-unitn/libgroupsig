@@ -25,6 +25,8 @@
 #include "logger.h"
 #include "types.h" 
 
+log_t logger;
+
 int log_init(char *filename, uint8_t mode, uint8_t verbosity, log_t *log) {
 
   struct tm *st;

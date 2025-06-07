@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	 xmlns="http://maven.apache.org/POM/4.0.0"
-	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -10,19 +10,20 @@
     <version>1.1.0</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
-  <groupId>com.ibm.jgroupsig</groupId>
-  <version>1.1.0</version>  
-  <artifactId>libjnigroupsig</artifactId>
-  <packaging>so</packaging>
 
+  <groupId>com.ibm.jgroupsig</groupId>
+  <artifactId>libjnigroupsig</artifactId>
+  <version>1.1.0</version>
+  <packaging>so</packaging>
   <name>libjnigroupsig</name>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>  
+  </properties>
 
   <build>
     <plugins>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -32,15 +33,21 @@
           <target>1.8</target>
         </configuration>
       </plugin>
+
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>native-maven-plugin</artifactId>
-        <version>1.0-alpha-8</version>
+        <version>1.0-M1</version>
         <extensions>true</extensions>
+
         <configuration>
           <compilerProvider>generic-classic</compilerProvider>
           <compilerExecutable>gcc</compilerExecutable>
           <linkerExecutable>gcc</linkerExecutable>
+
+          <javahOS>linux</javahOS>
+          <jdkIncludePath>${java.home}/include</jdkIncludePath>
+
           <sources>
             <source>
               <directory>${basedir}/src/main/c/jni</directory>
@@ -49,42 +56,39 @@
               </fileNames>
             </source>
           </sources>
+
           <compilerStartOptions>
-            <compilerStartOption>-I ${basedir}/../../../../../src/include</compilerStartOption>	    
-            <compilerStartOption>-I ${JAVA_HOME}/include/</compilerStartOption>
-            <compilerStartOption>-I ${JAVA_HOME}/include/linux/</compilerStartOption>
+            <compilerStartOption>-I${basedir}/../../../../../src/include</compilerStartOption>
           </compilerStartOptions>
+
           <compilerEndOptions>
             <compilerEndOption>-fPIC</compilerEndOption>
             <compilerEndOption>-std=c11</compilerEndOption>
           </compilerEndOptions>
+
           <linkerStartOptions>
-            <linkerStartOption>-I ${JAVA_HOME}/include/</linkerStartOption>
-            <linkerStartOption>-I ${JAVA_HOME}/include/linux/</linkerStartOption>
-            <linkerStartOption>-I ${JAVA_HOME}/lib/</linkerStartOption>
-	    <linkerStartOption>-Wl,-rpath=${basedir}/../../../../../build/lib/</linkerStartOption>
-            <!--<linkerStartOption>-L ${basedir}/src/main/c/lib</linkerStartOption>-->
+            <linkerStartOption>-Wl,-rpath,${basedir}/../../../../../build/lib/</linkerStartOption>
           </linkerStartOptions>
+
           <linkerEndOptions>
             <linkerEndOption>-shared</linkerEndOption>
             <linkerEndOption>-fPIC</linkerEndOption>
-	    <linkerEndOption>${basedir}/../../../../../build/lib/libgroupsig.so</linkerEndOption>
+            <linkerEndOption>${basedir}/../../../../../build/lib/libgroupsig.so</linkerEndOption>
           </linkerEndOptions>
         </configuration>
       </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
         <version>2.10</version>
         <executions>
           <execution>
-	    <id>copy</id>
-	    <phase>compile</phase>
-	    <goals>
-	      <goal>copy</goal>
-	    </goals>
-	    <configuration>
-	      <artifactItems>
+            <id>copy</id>
+            <phase>compile</phase>
+            <goals><goal>copy</goal></goals>
+            <configuration>
+              <artifactItems>
                 <artifactItem>
                   <groupId>com.ibm.jgroupsig</groupId>
                   <artifactId>libjnigroupsig</artifactId>
@@ -94,11 +98,12 @@
                   <outputDirectory>${project.build.directory}/main/resources</outputDirectory>
                   <destFileName>libjnigroupsig.so</destFileName>
                 </artifactItem>
-	      </artifactItems>
-	    </configuration>
+              </artifactItems>
+            </configuration>
           </execution>
         </executions>
-      </plugin>      
+      </plugin>
+
     </plugins>
   </build>
 </project>
