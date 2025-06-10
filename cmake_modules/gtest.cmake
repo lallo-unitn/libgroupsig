@@ -1,21 +1,19 @@
-include(ExternalProject)
-set(EXTERNAL_INSTALL_LOCATION ${CMAKE_BINARY_DIR}/external)
+include(FetchContent)
 
-ExternalProject_Add(gtest-project
+FetchContent_Declare(
+  googletest
   GIT_REPOSITORY https://github.com/google/googletest.git
-  CMAKE_ARGS
-  -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
-  -DCMAKE_INSTALL_RPATH=${EXTERNAL_INSTALL_LOCATION}/lib
-  -DCMAKE_CXX_FLAGS=-fPIC
-  INSTALL_COMMAND make install
+  GIT_TAG        release-1.11.0
 )
 
-install(DIRECTORY "${EXTERNAL_INSTALL_LOCATION}/include" DESTINATION ${CMAKE_INSTALL_PREFIX})
-install(DIRECTORY "${EXTERNAL_INSTALL_LOCATION}/lib" DESTINATION ${CMAKE_INSTALL_PREFIX})
+FetchContent_MakeAvailable(googletest)
 
-SET(GCC_TEST_COMPILE_FLAGS "-g -O0 -fprofile-arcs -ftest-coverage")
-SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O0 -fprofile-arcs -ftest-coverage")
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_TEST_COMPILE_FLAGS}" )
+if(CMAKE_COMPILER_IS_GNUCXX)
+  set(COVERAGE_FLAGS "--coverage")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COVERAGE_FLAGS}")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COVERAGE_FLAGS}")
+endif()
 
 enable_testing()
+
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/test)
