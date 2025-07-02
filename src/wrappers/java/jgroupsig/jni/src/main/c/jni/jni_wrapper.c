@@ -422,15 +422,17 @@ Java_com_ibm_jgroupsig_PS16_groupsig_1gsJoinMemB64(
     /* 3.  Export output message_t to bytes, then Base-64 encode           */
     /* ------------------------------------------------------------------ */
     uint8_t *outBuf = NULL; uint64_t outLen = 0;
-    if (message_export(&outBuf, &outLen, mout)) {         /* -> raw bytes   */
+    if (!mout || !mout->bytes || mout->length == 0) {    /* check message validity */
         message_free(mout);
         jclass ex = (*env)->FindClass(env, "java/lang/Exception");
-        (*env)->ThrowNew(env, ex, "message_export() failed");
+        (*env)->ThrowNew(env, ex, "Invalid message output");
         return NULL;
     }
-    message_free(mout);                                   /* done with mout */
 
-    /* nl==0 ⇒ no embedded newlines in output */
+    /* Get raw bytes directly from message structure */
+    outBuf = mout->bytes;
+    outLen = mout->length;
+
     char *outB64 = base64_encode(outBuf, outLen, 0);      /* uses supplied code */
     mem_free(outBuf);
 
@@ -1534,7 +1536,7 @@ static jstring groupsig_identityToString(JNIEnv *env, jobject obj, jlong ptr) {
    
   if(!(str = identity_to_string((identity_t *) ptr))) {
     jcls = (*env)->FindClass(env, "java/lang/Exception");
-    (*env)->ThrowNew(env, jcls, "Internal error.");
+    (*env)->ThrowNew(env, ex, "Internal error.");
     return NULL;
   }
   
