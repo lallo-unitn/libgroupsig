@@ -13,7 +13,7 @@
 #include "blindsig.h"
 #include <limits.h>
 
-#include "shim/base64.h"
+#include "base64.h"
 #include "sys/mem.h"
 
 static const char *JNIT_CLASS_GL19 = "com/ibm/jgroupsig/GL19";
