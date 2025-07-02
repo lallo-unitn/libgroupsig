@@ -363,46 +363,50 @@ static jlong groupsig_gsJoinMem(JNIEnv *env,
 JNIEXPORT jstring JNICALL
 Java_com_ibm_jgroupsig_PS16_groupsig_1gsJoinMemB64(
         JNIEnv  *env,
+        jobject  obj,          /* required JNI placeholder           */
         jlong    memKeyPtr,
         jint     seq,
         jstring  jMinB64,
         jlong    grpKeyPtr)
 {
+    /* Sanity-check native key pointers */
     if (!memKeyPtr || !grpKeyPtr) {
         jclass ex = (*env)->FindClass(env, "java/lang/IllegalArgumentException");
         (*env)->ThrowNew(env, ex, "memKeyPtr or grpKeyPtr is null");
         return NULL;
     }
 
-    /* ------------------------------------------------------------------ */
-    /* 1.  Decode input Base-64 (if any) into a message_t                 */
-    /* ------------------------------------------------------------------ */
+    /* -------------------------------------------------------------- */
+    /* 1. Decode Base-64 input (if any) → message_t *min              */
+    /* -------------------------------------------------------------- */
     message_t *min = NULL;
 
     if (jMinB64 != NULL) {
         const char *minStr = (*env)->GetStringUTFChars(env, jMinB64, 0);
 
-        uint64_t inLen = 0;
-        byte_t  *inBuf = base64_decode(minStr, &inLen);   /* uses supplied code */
+        uint64_t inLen  = 0;
+        byte_t  *inBuf  = base64_decode(minStr, &inLen);    /* your routine */
         (*env)->ReleaseStringUTFChars(env, jMinB64, minStr);
 
-        if (inBuf == NULL) {
+        if (!inBuf) {
             jclass ex = (*env)->FindClass(env, "java/lang/Exception");
             (*env)->ThrowNew(env, ex, "Base64 decode of input failed");
             return NULL;
         }
-        if (message_from_bytes(&min, inBuf, inLen)) {     /* convert to message_t */
-            mem_free(inBuf);
+
+        min = message_from_bytes(inBuf, inLen);             /* ← corrected */
+        mem_free(inBuf);
+
+        if (!min) {
             jclass ex = (*env)->FindClass(env, "java/lang/Exception");
             (*env)->ThrowNew(env, ex, "message_from_bytes() failed");
             return NULL;
         }
-        mem_free(inBuf);                                  /* buffer no longer needed */
     }
 
-    /* ------------------------------------------------------------------ */
-    /* 2.  Call core PS16 join-mem                                         */
-    /* ------------------------------------------------------------------ */
+    /* -------------------------------------------------------------- */
+    /* 2. Call PS16 join-mem                                          */
+    /* -------------------------------------------------------------- */
     message_t *mout = NULL;
     int rc = groupsig_join_mem(&mout,
                                (groupsig_key_t *) memKeyPtr,
@@ -410,40 +414,31 @@ Java_com_ibm_jgroupsig_PS16_groupsig_1gsJoinMemB64(
                                min,
                                (groupsig_key_t *) grpKeyPtr);
 
-    if (min)  message_free(min);                          /* free input msg */
+    if (min) message_free(min);
 
-    if (rc == IERROR || mout == NULL) {
+    if (rc == IERROR || !mout) {
         jclass ex = (*env)->FindClass(env, "java/lang/Exception");
         (*env)->ThrowNew(env, ex, "groupsig_join_mem failed");
         return NULL;
     }
 
-    /* ------------------------------------------------------------------ */
-    /* 3.  Export output message_t to bytes, then Base-64 encode           */
-    /* ------------------------------------------------------------------ */
-    uint8_t *outBuf = NULL; uint64_t outLen = 0;
-    if (!mout || !mout->bytes || mout->length == 0) {    /* check message validity */
+    /* -------------------------------------------------------------- */
+    /* 3. Base-64-encode the payload                                  */
+    /* -------------------------------------------------------------- */
+    char *outB64 = base64_encode(mout->bytes, mout->length, 0);
+    if (!outB64) {
         message_free(mout);
-        jclass ex = (*env)->FindClass(env, "java/lang/Exception");
-        (*env)->ThrowNew(env, ex, "Invalid message output");
-        return NULL;
-    }
-
-    /* Get raw bytes directly from message structure */
-    outBuf = mout->bytes;
-    outLen = mout->length;
-
-    char *outB64 = base64_encode(outBuf, outLen, 0);      /* uses supplied code */
-    mem_free(outBuf);
-
-    if (outB64 == NULL) {
         jclass ex = (*env)->FindClass(env, "java/lang/Exception");
         (*env)->ThrowNew(env, ex, "Base64 encode of output failed");
         return NULL;
     }
 
     jstring jOut = (*env)->NewStringUTF(env, outB64);
+
+    /* tidy-up native allocations */
     mem_free(outB64);
+    message_free(mout);
+
     return jOut;
 }
 
