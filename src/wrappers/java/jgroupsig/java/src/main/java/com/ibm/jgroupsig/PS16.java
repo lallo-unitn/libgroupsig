@@ -124,6 +124,16 @@ public class PS16 implements GS {
 	return groupsig_gsHasGml(this.code);
     }
 
+    private native String groupsig_gsJoinMemB64(
+            long memKeyPtr, int seq, String inMsgB64, long grpKeyPtr);
+
+    public String joinMemBase64(MemKey memKey,
+                                int     seq,
+                                String  inMsgBase64,
+                                GrpKey  grpKey) {
+        return groupsig_gsJoinMemB64(memKey.ptr, seq, inMsgBase64, grpKey.ptr);
+    }
+
     /**
      * Runs the setup process for a PS16 group. As a result of a call to 
      * this method, the grpKey, mgrKey and gml attributes of the current PS16 
@@ -658,6 +668,8 @@ public class PS16 implements GS {
     						    long sigPtr,
     						    long bSigPtr,
     						    long grpKeyPtr,
-    						    long bldKeyPtr);    
+    						    long bldKeyPtr);
+    private native String joinMemB64(long memKeyPtr, int seq, String inB64, long grpKeyPtr);
+    private native String joinMgrB64(long gmlPtr, long mgrKeyPtr, int seq, String inB64, long grpKeyPtr);
 
 }

@@ -12,6 +12,10 @@
 #include "signature.h"
 #include "blindsig.h"
 #include <limits.h>
+#include <tools/base64.h>
+
+#include "shim/base64.h"
+#include "sys/mem.h"
 
 static const char *JNIT_CLASS_GL19 = "com/ibm/jgroupsig/GL19";
 static const char *JNIT_CLASS_BBS04 = "com/ibm/jgroupsig/BBS04";
@@ -355,6 +359,91 @@ static jlong groupsig_gsJoinMem(JNIEnv *env,
 
   return (jlong) mout;
   
+}
+
+JNIEXPORT jstring JNICALL
+Java_com_ibm_jgroupsig_PS16_groupsig_1gsJoinMemB64(
+        JNIEnv  *env,
+        jlong    memKeyPtr,
+        jint     seq,
+        jstring  jMinB64,
+        jlong    grpKeyPtr)
+{
+    if (!memKeyPtr || !grpKeyPtr) {
+        jclass ex = (*env)->FindClass(env, "java/lang/IllegalArgumentException");
+        (*env)->ThrowNew(env, ex, "memKeyPtr or grpKeyPtr is null");
+        return NULL;
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* 1.  Decode input Base-64 (if any) into a message_t                 */
+    /* ------------------------------------------------------------------ */
+    message_t *min = NULL;
+
+    if (jMinB64 != NULL) {
+        const char *minStr = (*env)->GetStringUTFChars(env, jMinB64, 0);
+
+        uint64_t inLen = 0;
+        byte_t  *inBuf = base64_decode(minStr, &inLen);   /* uses supplied code */
+        (*env)->ReleaseStringUTFChars(env, jMinB64, minStr);
+
+        if (inBuf == NULL) {
+            jclass ex = (*env)->FindClass(env, "java/lang/Exception");
+            (*env)->ThrowNew(env, ex, "Base64 decode of input failed");
+            return NULL;
+        }
+        if (message_from_bytes(&min, inBuf, inLen)) {     /* convert to message_t */
+            mem_free(inBuf);
+            jclass ex = (*env)->FindClass(env, "java/lang/Exception");
+            (*env)->ThrowNew(env, ex, "message_from_bytes() failed");
+            return NULL;
+        }
+        mem_free(inBuf);                                  /* buffer no longer needed */
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* 2.  Call core PS16 join-mem                                         */
+    /* ------------------------------------------------------------------ */
+    message_t *mout = NULL;
+    int rc = groupsig_join_mem(&mout,
+                               (groupsig_key_t *) memKeyPtr,
+                               (int) seq,
+                               min,
+                               (groupsig_key_t *) grpKeyPtr);
+
+    if (min)  message_free(min);                          /* free input msg */
+
+    if (rc == IERROR || mout == NULL) {
+        jclass ex = (*env)->FindClass(env, "java/lang/Exception");
+        (*env)->ThrowNew(env, ex, "groupsig_join_mem failed");
+        return NULL;
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* 3.  Export output message_t to bytes, then Base-64 encode           */
+    /* ------------------------------------------------------------------ */
+    uint8_t *outBuf = NULL; uint64_t outLen = 0;
+    if (message_export(&outBuf, &outLen, mout)) {         /* -> raw bytes   */
+        message_free(mout);
+        jclass ex = (*env)->FindClass(env, "java/lang/Exception");
+        (*env)->ThrowNew(env, ex, "message_export() failed");
+        return NULL;
+    }
+    message_free(mout);                                   /* done with mout */
+
+    /* nl==0 ⇒ no embedded newlines in output */
+    char *outB64 = base64_encode(outBuf, outLen, 0);      /* uses supplied code */
+    mem_free(outBuf);
+
+    if (outB64 == NULL) {
+        jclass ex = (*env)->FindClass(env, "java/lang/Exception");
+        (*env)->ThrowNew(env, ex, "Base64 encode of output failed");
+        return NULL;
+    }
+
+    jstring jOut = (*env)->NewStringUTF(env, outB64);
+    mem_free(outB64);
+    return jOut;
 }
 
 static jlong groupsig_gsJoinMgr(JNIEnv *env,
