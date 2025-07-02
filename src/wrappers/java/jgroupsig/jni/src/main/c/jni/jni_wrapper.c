@@ -14,7 +14,7 @@
 #include <limits.h>
 
 #include "base64.h"
-#include "sys/mem.h"
+#include "mem.h"
 
 static const char *JNIT_CLASS_GL19 = "com/ibm/jgroupsig/GL19";
 static const char *JNIT_CLASS_BBS04 = "com/ibm/jgroupsig/BBS04";
