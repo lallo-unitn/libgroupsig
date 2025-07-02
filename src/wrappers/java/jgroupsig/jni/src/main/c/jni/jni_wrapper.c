@@ -12,7 +12,6 @@
 #include "signature.h"
 #include "blindsig.h"
 #include <limits.h>
-#include <tools/base64.h>
 
 #include "shim/base64.h"
 #include "sys/mem.h"
