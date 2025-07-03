@@ -138,6 +138,26 @@ public class PS16 implements GS {
         );
     }
 
+
+    private native String groupsig_gsJoinMgrB64(
+                long gmlPtr,
+                long mgrKeyPtr,
+                int seq,
+                String inMsgB64,
+                long grpKeyPtr
+            );
+
+        public String joinMgrBase64(int     seq,
+                                    String  inMsgBase64) {
+            return groupsig_gsJoinMgrB64(
+                this.gml.getObject(),
+                this.mgrKey.getObject(),
+                seq,
+                inMsgBase64,
+                this.grpKey.getObject()
+            );
+        }
+
     /**
      * Runs the setup process for a PS16 group. As a result of a call to 
      * this method, the grpKey, mgrKey and gml attributes of the current PS16 

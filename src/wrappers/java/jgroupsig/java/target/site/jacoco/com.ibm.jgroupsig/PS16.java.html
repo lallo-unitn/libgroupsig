@@ -124,6 +124,40 @@ public class PS16 implements GS {
 <span class="nc" id="L124">	return groupsig_gsHasGml(this.code);</span>
     }
 
+    private native String groupsig_gsJoinMemB64(
+            long memKeyPtr, int seq, String inMsgB64, long grpKeyPtr);
+
+    public String joinMemBase64(MemKey memKey,
+                                int     seq,
+                                String  inMsgBase64) {
+<span class="nc" id="L133">        return groupsig_gsJoinMemB64(</span>
+<span class="nc" id="L134">            memKey.getObject(),</span>
+            seq,
+            inMsgBase64,
+<span class="nc" id="L137">            this.grpKey.getObject()</span>
+        );
+    }
+
+
+    private native String groupsig_gsJoinMgrB64(
+                long gmlPtr,
+                long mgrKeyPtr,
+                int seq,
+                String inMsgB64,
+                long grpKeyPtr
+            );
+
+        public String joinMgrBase64(int     seq,
+                                    String  inMsgBase64) {
+<span class="nc" id="L152">            return groupsig_gsJoinMgrB64(</span>
+<span class="nc" id="L153">                this.gml.getObject(),</span>
+<span class="nc" id="L154">                this.mgrKey.getObject(),</span>
+                seq,
+                inMsgBase64,
+<span class="nc" id="L157">                this.grpKey.getObject()</span>
+            );
+        }
+
     /**
      * Runs the setup process for a PS16 group. As a result of a call to 
      * this method, the grpKey, mgrKey and gml attributes of the current PS16 
@@ -137,15 +171,15 @@ public class PS16 implements GS {
     	throws IllegalArgumentException,
     	       Exception
     {
-<span class="fc" id="L140">    	this.grpKey = new GrpKey(this.code);</span>
-<span class="fc" id="L141">	this.mgrKey = new MgrKey(this.code);</span>
-<span class="fc" id="L142">	this.gml = new Gml(this.code);</span>
+<span class="fc" id="L174">    	this.grpKey = new GrpKey(this.code);</span>
+<span class="fc" id="L175">	this.mgrKey = new MgrKey(this.code);</span>
+<span class="fc" id="L176">	this.gml = new Gml(this.code);</span>
 	
-<span class="fc" id="L144">    	groupsig_gsSetup(this.code,</span>
-<span class="fc" id="L145">			    this.grpKey.getObject(),</span>
-<span class="fc" id="L146">			    this.mgrKey.getObject(),</span>
-<span class="fc" id="L147">			    this.gml.getObject());</span>
-<span class="fc" id="L148">	return;</span>
+<span class="fc" id="L178">    	groupsig_gsSetup(this.code,</span>
+<span class="fc" id="L179">			    this.grpKey.getObject(),</span>
+<span class="fc" id="L180">			    this.mgrKey.getObject(),</span>
+<span class="fc" id="L181">			    this.gml.getObject());</span>
+<span class="fc" id="L182">	return;</span>
     }
 
     /**
@@ -167,7 +201,7 @@ public class PS16 implements GS {
 	throws IllegalArgumentException,
 	       Exception	
     {
-<span class="fc" id="L170">	return groupsig_gsGetJoinSeq(this.code);</span>
+<span class="fc" id="L204">	return groupsig_gsGetJoinSeq(this.code);</span>
     }
 
     /**
@@ -184,7 +218,7 @@ public class PS16 implements GS {
 	throws IllegalArgumentException,
 	       Exception	
     {
-<span class="fc" id="L187">	return groupsig_gsGetJoinStart(this.code);</span>
+<span class="fc" id="L221">	return groupsig_gsGetJoinStart(this.code);</span>
     }
 
     /**
@@ -208,11 +242,11 @@ public class PS16 implements GS {
 	throws IllegalArgumentException,
 	       Exception	
     {
-<span class="fc" id="L211">	long mout = groupsig_gsJoinMem(memKey.getObject(),</span>
+<span class="fc" id="L245">	long mout = groupsig_gsJoinMem(memKey.getObject(),</span>
 				       seq,
 				       min,
-<span class="fc" id="L214">				       this.grpKey.getObject());</span>
-<span class="fc" id="L215">	return mout;</span>
+<span class="fc" id="L248">				       this.grpKey.getObject());</span>
+<span class="fc" id="L249">	return mout;</span>
     }
 
     /**
@@ -234,12 +268,12 @@ public class PS16 implements GS {
 	throws IllegalArgumentException,
 	       Exception	
     {
-<span class="fc" id="L237">	long mout = groupsig_gsJoinMgr(this.gml.getObject(),</span>
-<span class="fc" id="L238">				       this.mgrKey.getObject(),</span>
+<span class="fc" id="L271">	long mout = groupsig_gsJoinMgr(this.gml.getObject(),</span>
+<span class="fc" id="L272">				       this.mgrKey.getObject(),</span>
 				       seq,
 				       min,
-<span class="fc" id="L241">				       this.grpKey.getObject());</span>
-<span class="fc" id="L242">	return mout;</span>
+<span class="fc" id="L275">				       this.grpKey.getObject());</span>
+<span class="fc" id="L276">	return mout;</span>
     }
 
     /**
@@ -258,15 +292,15 @@ public class PS16 implements GS {
 	 throws IllegalArgumentException,
 		Exception	 
     {
-<span class="fc" id="L261">	Signature sig = new Signature(this.code);</span>
-<span class="pc bpc" id="L262" title="1 of 2 branches missed.">	if(groupsig_gsSign(sig.getObject(),</span>
+<span class="fc" id="L295">	Signature sig = new Signature(this.code);</span>
+<span class="pc bpc" id="L296" title="1 of 2 branches missed.">	if(groupsig_gsSign(sig.getObject(),</span>
 			   msg,
 			   msg.length,
-<span class="fc" id="L265">			   memKey.getObject(),</span>
-<span class="fc" id="L266">			   this.grpKey.getObject(),</span>
+<span class="fc" id="L299">			   memKey.getObject(),</span>
+<span class="fc" id="L300">			   this.grpKey.getObject(),</span>
 			   0) == 1)
-<span class="nc" id="L268">	    throw new Exception(&quot;Error signing.&quot;);</span>
-<span class="fc" id="L269">	return sig;</span>
+<span class="nc" id="L302">	    throw new Exception(&quot;Error signing.&quot;);</span>
+<span class="fc" id="L303">	return sig;</span>
     }
 
     /**
@@ -289,15 +323,15 @@ public class PS16 implements GS {
 	throws IllegalArgumentException,
 	       Exception
     {
-<span class="nc" id="L292">	Signature sig = new Signature(this.code);</span>
-<span class="nc bnc" id="L293" title="All 2 branches missed.">	if(groupsig_gsSign(sig.getObject(),</span>
+<span class="nc" id="L326">	Signature sig = new Signature(this.code);</span>
+<span class="nc bnc" id="L327" title="All 2 branches missed.">	if(groupsig_gsSign(sig.getObject(),</span>
 			   msg,
 			   msg.length,
-<span class="nc" id="L296">			   memKey.getObject(),</span>
-<span class="nc" id="L297">			   this.grpKey.getObject(),</span>
+<span class="nc" id="L330">			   memKey.getObject(),</span>
+<span class="nc" id="L331">			   this.grpKey.getObject(),</span>
 			   s) == 1)
-<span class="nc" id="L299">	    throw new Exception(&quot;Error signing.&quot;);</span>
-<span class="nc" id="L300">	return sig;</span>
+<span class="nc" id="L333">	    throw new Exception(&quot;Error signing.&quot;);</span>
+<span class="nc" id="L334">	return sig;</span>
     }
 
     /**
@@ -319,16 +353,16 @@ public class PS16 implements GS {
 	       Exception
     {
 
-<span class="fc" id="L322">	Signature sig = new Signature(this.code);</span>
-<span class="fc" id="L323">	final byte[] utf8Bytes = msg.getBytes(&quot;UTF-8&quot;);</span>
-<span class="pc bpc" id="L324" title="1 of 2 branches missed.">	if(groupsig_gsSign(sig.getObject(),</span>
+<span class="fc" id="L356">	Signature sig = new Signature(this.code);</span>
+<span class="fc" id="L357">	final byte[] utf8Bytes = msg.getBytes(&quot;UTF-8&quot;);</span>
+<span class="pc bpc" id="L358" title="1 of 2 branches missed.">	if(groupsig_gsSign(sig.getObject(),</span>
 			   utf8Bytes,
 			   utf8Bytes.length,
-<span class="fc" id="L327">			   memKey.getObject(),</span>
-<span class="fc" id="L328">			   this.grpKey.getObject(),</span>
+<span class="fc" id="L361">			   memKey.getObject(),</span>
+<span class="fc" id="L362">			   this.grpKey.getObject(),</span>
 			   0) == 1)
-<span class="nc" id="L330">	    throw new Exception(&quot;Error signing.&quot;);</span>
-<span class="fc" id="L331">	return sig;</span>
+<span class="nc" id="L364">	    throw new Exception(&quot;Error signing.&quot;);</span>
+<span class="fc" id="L365">	return sig;</span>
 	
     }
 
@@ -355,16 +389,16 @@ public class PS16 implements GS {
 	       Exception	       
     {
 
-<span class="nc" id="L358">	Signature sig = new Signature(this.code);</span>
-<span class="nc" id="L359">	final byte[] utf8Bytes = msg.getBytes(&quot;UTF-8&quot;);</span>
-<span class="nc bnc" id="L360" title="All 2 branches missed.">	if(groupsig_gsSign(sig.getObject(),</span>
+<span class="nc" id="L392">	Signature sig = new Signature(this.code);</span>
+<span class="nc" id="L393">	final byte[] utf8Bytes = msg.getBytes(&quot;UTF-8&quot;);</span>
+<span class="nc bnc" id="L394" title="All 2 branches missed.">	if(groupsig_gsSign(sig.getObject(),</span>
 			   utf8Bytes,
 			   utf8Bytes.length,
-<span class="nc" id="L363">			   memKey.getObject(),</span>
-<span class="nc" id="L364">			   this.grpKey.getObject(),</span>
+<span class="nc" id="L397">			   memKey.getObject(),</span>
+<span class="nc" id="L398">			   this.grpKey.getObject(),</span>
 			   s) == 1)
-<span class="nc" id="L366">	    throw new Exception(&quot;Error signing.&quot;);</span>
-<span class="nc" id="L367">	return sig;</span>
+<span class="nc" id="L400">	    throw new Exception(&quot;Error signing.&quot;);</span>
+<span class="nc" id="L401">	return sig;</span>
 	
     }
 
@@ -383,10 +417,10 @@ public class PS16 implements GS {
 	throws IllegalArgumentException,
 	       Exception
     {
-<span class="fc" id="L386">	return groupsig_gsVerify(sig.getObject(),</span>
+<span class="fc" id="L420">	return groupsig_gsVerify(sig.getObject(),</span>
 				 msg,
 				 msg.length,
-<span class="fc" id="L389">				 this.grpKey.getObject());</span>
+<span class="fc" id="L423">				 this.grpKey.getObject());</span>
     }
 
     /**
@@ -407,11 +441,11 @@ public class PS16 implements GS {
 	       Exception	       
     {
 	
-<span class="fc" id="L410">	final byte[] utf8Bytes = msg.getBytes(&quot;UTF-8&quot;);</span>
-<span class="fc" id="L411">	return groupsig_gsVerify(sig.getObject(),</span>
+<span class="fc" id="L444">	final byte[] utf8Bytes = msg.getBytes(&quot;UTF-8&quot;);</span>
+<span class="fc" id="L445">	return groupsig_gsVerify(sig.getObject(),</span>
 				 utf8Bytes,
 				 utf8Bytes.length,
-<span class="fc" id="L414">				 this.grpKey.getObject());</span>
+<span class="fc" id="L448">				 this.grpKey.getObject());</span>
 	
     }
 
@@ -430,17 +464,17 @@ public class PS16 implements GS {
 	       Exception {
 
 	long index;
-<span class="fc" id="L433">	Proof proof = new Proof(this.code);</span>
+<span class="fc" id="L467">	Proof proof = new Proof(this.code);</span>
 
-<span class="pc bpc" id="L435" title="1 of 2 branches missed.">	if((index = groupsig_gsOpen(proof.getObject(),</span>
+<span class="pc bpc" id="L469" title="1 of 2 branches missed.">	if((index = groupsig_gsOpen(proof.getObject(),</span>
 				    0,
-<span class="fc" id="L437">				    sig.getObject(),</span>
-<span class="fc" id="L438">				    this.grpKey.getObject(),</span>
-<span class="fc" id="L439">				    this.mgrKey.getObject(),</span>
-<span class="fc" id="L440">				    this.gml.getObject())) == -1)</span>
-<span class="nc" id="L441">	    throw new Exception(&quot;Error opening.&quot;);</span>
-<span class="fc" id="L442">	IndexProof indexProof = new IndexProof(index, proof);</span>
-<span class="fc" id="L443">	return indexProof;</span>
+<span class="fc" id="L471">				    sig.getObject(),</span>
+<span class="fc" id="L472">				    this.grpKey.getObject(),</span>
+<span class="fc" id="L473">				    this.mgrKey.getObject(),</span>
+<span class="fc" id="L474">				    this.gml.getObject())) == -1)</span>
+<span class="nc" id="L475">	    throw new Exception(&quot;Error opening.&quot;);</span>
+<span class="fc" id="L476">	IndexProof indexProof = new IndexProof(index, proof);</span>
+<span class="fc" id="L477">	return indexProof;</span>
     }
 
     /**
@@ -458,14 +492,14 @@ public class PS16 implements GS {
 	throws IllegalArgumentException,
 	       Exception {
 
-<span class="fc" id="L461">	long proofPtr = 0;</span>
+<span class="fc" id="L495">	long proofPtr = 0;</span>
 	
-<span class="pc bpc" id="L463" title="1 of 2 branches missed.">	if (indexProof.getProof() != null)</span>
-<span class="fc" id="L464">	    proofPtr = indexProof.getProof().getObject();</span>
+<span class="pc bpc" id="L497" title="1 of 2 branches missed.">	if (indexProof.getProof() != null)</span>
+<span class="fc" id="L498">	    proofPtr = indexProof.getProof().getObject();</span>
 	
-<span class="fc" id="L466">        return groupsig_gsOpenVerify(proofPtr,</span>
-<span class="fc" id="L467">				     sig.getObject(),</span>
-<span class="fc" id="L468">				     this.grpKey.getObject());</span>
+<span class="fc" id="L500">        return groupsig_gsOpenVerify(proofPtr,</span>
+<span class="fc" id="L501">				     sig.getObject(),</span>
+<span class="fc" id="L502">				     this.grpKey.getObject());</span>
     }
 
     public BlindSignature blind(BldKey bldKey,
@@ -475,7 +509,7 @@ public class PS16 implements GS {
 	       IllegalArgumentException,
 	       Exception	       
     {
-<span class="nc" id="L478">	throw new Exception(&quot;Functionality not supported in PS16.&quot;);		</span>
+<span class="nc" id="L512">	throw new Exception(&quot;Functionality not supported in PS16.&quot;);		</span>
     }
 
     public BlindSignature blind(BldKey bldKey,
@@ -484,7 +518,7 @@ public class PS16 implements GS {
 	throws IllegalArgumentException,
 	       Exception
     {
-<span class="nc" id="L487">	throw new Exception(&quot;Functionality not supported in PS16.&quot;);		</span>
+<span class="nc" id="L521">	throw new Exception(&quot;Functionality not supported in PS16.&quot;);		</span>
     }
 
     @Override
@@ -493,7 +527,7 @@ public class PS16 implements GS {
 	throws IllegalArgumentException,
 	       Exception
     {
-<span class="nc" id="L496">	throw new Exception(&quot;Functionality not supported in PS16.&quot;);		</span>
+<span class="nc" id="L530">	throw new Exception(&quot;Functionality not supported in PS16.&quot;);		</span>
     }    
 
     @Override
@@ -503,7 +537,7 @@ public class PS16 implements GS {
 	       IllegalArgumentException,
 	       Exception	       
     {
-<span class="nc" id="L506">	throw new Exception(&quot;Functionality not supported in PS16.&quot;);		</span>
+<span class="nc" id="L540">	throw new Exception(&quot;Functionality not supported in PS16.&quot;);		</span>
     }    
 
     @Override
@@ -514,7 +548,7 @@ public class PS16 implements GS {
 	       IllegalArgumentException,
 	       Exception	       
     {
-<span class="nc" id="L517">	throw new Exception(&quot;Functionality not supported in PS16.&quot;);	</span>
+<span class="nc" id="L551">	throw new Exception(&quot;Functionality not supported in PS16.&quot;);	</span>
     }    
     
     /**
@@ -523,7 +557,7 @@ public class PS16 implements GS {
      * @return The group key of the current PS16 instance.
      */     
     public GrpKey getGrpKey() {
-<span class="fc" id="L526">	return this.grpKey;</span>
+<span class="fc" id="L560">	return this.grpKey;</span>
     }
 
     /**
@@ -534,8 +568,8 @@ public class PS16 implements GS {
      * @param grpKey The group key to set.
      */
     public void setGrpKey(GrpKey grpKey) {
-<span class="fc" id="L537">	this.grpKey = grpKey;</span>
-<span class="fc" id="L538">    }</span>
+<span class="fc" id="L571">	this.grpKey = grpKey;</span>
+<span class="fc" id="L572">    }</span>
 
     /**
      * Returns the manager key of the current PS16 instance.
@@ -543,7 +577,7 @@ public class PS16 implements GS {
      * @return The manager key of the current PS16 instance.
      */     
     public MgrKey getMgrKey() {
-<span class="fc" id="L546">	return this.mgrKey;</span>
+<span class="fc" id="L580">	return this.mgrKey;</span>
     }
 
     /**
@@ -554,8 +588,8 @@ public class PS16 implements GS {
      * @param mgrKey The manager key to set.
      */
     public void setMgrKey(MgrKey mgrKey) {
-<span class="nc" id="L557">	this.mgrKey = mgrKey;</span>
-<span class="nc" id="L558">    }</span>
+<span class="nc" id="L591">	this.mgrKey = mgrKey;</span>
+<span class="nc" id="L592">    }</span>
     
     /**
      * Returns the group membership list of the current PS16 instance.
@@ -563,7 +597,7 @@ public class PS16 implements GS {
      * @return The group membership list of the current PS16 instance.
      */     
     public Gml getGml() {
-<span class="fc" id="L566">	return this.gml;</span>
+<span class="fc" id="L600">	return this.gml;</span>
     }
 
     /**
@@ -572,8 +606,8 @@ public class PS16 implements GS {
      * @param gml The GML to set.
      */
     public void setGml(Gml gml) {
-<span class="nc" id="L575">	this.gml = gml;</span>
-<span class="nc" id="L576">    }</span>
+<span class="nc" id="L609">	this.gml = gml;</span>
+<span class="nc" id="L610">    }</span>
 
     /**
      * Returns the code of the current PS16 instance.
@@ -582,7 +616,7 @@ public class PS16 implements GS {
      */
     @Override    
     public int getCode() {
-<span class="fc" id="L585">	return this.code;</span>
+<span class="fc" id="L619">	return this.code;</span>
     }
 
     /**
@@ -592,10 +626,10 @@ public class PS16 implements GS {
      */
     @Override
     public long getGroup() {
-<span class="fc" id="L595">	return this.ptr;</span>
+<span class="fc" id="L629">	return this.ptr;</span>
     }
 
-<span class="fc" id="L598">    static { System.loadLibrary(&quot;jnigroupsig&quot;); }</span>
+<span class="fc" id="L632">    static { System.loadLibrary(&quot;jnigroupsig&quot;); }</span>
     
     private static native int groupsig_gsHelloWorld();
     private static native boolean groupsig_gsIsSupportedScheme(int code);
@@ -658,7 +692,9 @@ public class PS16 implements GS {
     						    long sigPtr,
     						    long bSigPtr,
     						    long grpKeyPtr,
-    						    long bldKeyPtr);    
+    						    long bldKeyPtr);
+    private native String joinMemB64(long memKeyPtr, int seq, String inB64, long grpKeyPtr);
+    private native String joinMgrB64(long gmlPtr, long mgrKeyPtr, int seq, String inB64, long grpKeyPtr);
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>
