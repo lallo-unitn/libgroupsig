@@ -361,175 +361,56 @@ static jlong groupsig_gsJoinMem(JNIEnv *env,
 }
 
 JNIEXPORT jstring JNICALL
-Java_com_ibm_jgroupsig_PS16_groupsig_1gsJoinMgrB64(
-        JNIEnv  *env,
-        jobject  obj,          /* required JNI placeholder           */
-        jlong    gmlPtr,
-        jlong    mgrKeyPtr,
-        jint     seq,
-        jstring  jMinB64,
-        jlong    grpKeyPtr)
+Java_com_ibm_jgroupsig_PS16_groupsig_1gsMessageToBase64(
+        JNIEnv *env,
+        jobject obj,
+        jlong   messagePtr)
 {
-    /* Sanity-check native key pointers */
-    if (!mgrKeyPtr || !grpKeyPtr) {
+    if (!messagePtr) {
         jclass ex = (*env)->FindClass(env, "java/lang/IllegalArgumentException");
-        (*env)->ThrowNew(env, ex, "mgrKeyPtr or grpKeyPtr is null");
+        (*env)->ThrowNew(env, ex, "messagePtr is null");
         return NULL;
     }
 
-    /* -------------------------------------------------------------- */
-    /* 1. Decode Base-64 input (if any) → message_t *min              */
-    /* -------------------------------------------------------------- */
-    message_t *min = NULL;
-
-    if (jMinB64 != NULL && seq !=0) {
-        const char *minStr = (*env)->GetStringUTFChars(env, jMinB64, 0);
-
-        uint64_t inLen  = 0;
-        byte_t  *inBuf  = base64_decode(minStr, &inLen);    /* your routine */
-        (*env)->ReleaseStringUTFChars(env, jMinB64, minStr);
-
-        if (!inBuf) {
-            jclass ex = (*env)->FindClass(env, "java/lang/Exception");
-            (*env)->ThrowNew(env, ex, "Base64 decode of input failed");
-            return NULL;
-        }
-
-        min = message_from_bytes(inBuf, inLen);             /* ← corrected */
-        mem_free(inBuf);
-
-        if (!min) {
-            jclass ex = (*env)->FindClass(env, "java/lang/Exception");
-            (*env)->ThrowNew(env, ex, "message_from_bytes() failed");
-            return NULL;
-        }
-
-    } else if (jMinB64 != NULL && seq ==0) {
-        min = 0;
-    }
-
-    /* -------------------------------------------------------------- */
-    /* 2. Call PS16 join-mgr                                          */
-    /* -------------------------------------------------------------- */
-    message_t *mout = NULL;
-    int rc = groupsig_join_mgr(
-            &mout,
-            (gml_t *) gmlPtr,
-            (groupsig_key_t *) mgrKeyPtr,
-            (int) seq,
-            min,
-            (groupsig_key_t *) grpKeyPtr
-        );
-
-    if (min) message_free(min);
-
-    if (rc == IERROR || !mout) {
+    char *b64 = message_to_base64((message_t*) messagePtr);
+    if (!b64) {
         jclass ex = (*env)->FindClass(env, "java/lang/Exception");
-        (*env)->ThrowNew(env, ex, "groupsig_join_mgr failed");
+        (*env)->ThrowNew(env, ex, "message_to_base64 failed");
         return NULL;
     }
 
-    /* -------------------------------------------------------------- */
-    /* 3. Base-64-encode the payload                                  */
-    /* -------------------------------------------------------------- */
-    char *outB64 = base64_encode(mout->bytes, mout->length, 0);
-    if (!outB64) {
-        message_free(mout);
-        jclass ex = (*env)->FindClass(env, "java/lang/Exception");
-        (*env)->ThrowNew(env, ex, "Base64 encode of output failed");
-        return NULL;
-    }
-
-    jstring jOut = (*env)->NewStringUTF(env, outB64);
-
-    /* tidy-up native allocations */
-    mem_free(outB64);
-    message_free(mout);
-
-    return jOut;
+    jstring out = (*env)->NewStringUTF(env, b64);
+    mem_free(b64);                       /* free buffer allocated by lib */
+    return out;
 }
 
-JNIEXPORT jstring JNICALL
-Java_com_ibm_jgroupsig_PS16_groupsig_1gsJoinMemB64(
-        JNIEnv  *env,
-        jobject  obj,          /* required JNI placeholder           */
-        jlong    memKeyPtr,
-        jint     seq,
-        jstring  jMinB64,
-        jlong    grpKeyPtr)
+/* ------------------------------------------------------------------ */
+/*  messageFromBase64 :  Base-64 string  ->  message_t* pointer        */
+/* ------------------------------------------------------------------ */
+JNIEXPORT jlong JNICALL
+Java_com_ibm_jgroupsig_PS16_groupsig_1gsMessageFromBase64(
+        JNIEnv *env,
+        jobject obj,
+        jstring jB64)
 {
-    /* Sanity-check native key pointers */
-    if (!memKeyPtr || !grpKeyPtr) {
+    if (jB64 == NULL) {
         jclass ex = (*env)->FindClass(env, "java/lang/IllegalArgumentException");
-        (*env)->ThrowNew(env, ex, "memKeyPtr or grpKeyPtr is null");
-        return NULL;
+        (*env)->ThrowNew(env, ex, "messageBase64 is null");
+        return 0;
     }
 
-    /* -------------------------------------------------------------- */
-    /* 1. Decode Base-64 input (if any) → message_t *min              */
-    /* -------------------------------------------------------------- */
-    message_t *min = NULL;
+    const char *cB64 = (*env)->GetStringUTFChars(env, jB64, 0);
+    message_t *msg   = message_from_base64((char*) cB64);
+    (*env)->ReleaseStringUTFChars(env, jB64, cB64);
 
-    if (jMinB64 != NULL) {
-        const char *minStr = (*env)->GetStringUTFChars(env, jMinB64, 0);
-
-        uint64_t inLen  = 0;
-        byte_t  *inBuf  = base64_decode(minStr, &inLen);    /* your routine */
-        (*env)->ReleaseStringUTFChars(env, jMinB64, minStr);
-
-        if (!inBuf) {
-            jclass ex = (*env)->FindClass(env, "java/lang/Exception");
-            (*env)->ThrowNew(env, ex, "Base64 decode of input failed");
-            return NULL;
-        }
-
-        min = message_from_bytes(inBuf, inLen);             /* ← corrected */
-        mem_free(inBuf);
-
-        if (!min) {
-            jclass ex = (*env)->FindClass(env, "java/lang/Exception");
-            (*env)->ThrowNew(env, ex, "message_from_bytes() failed");
-            return NULL;
-        }
-    }
-
-    /* -------------------------------------------------------------- */
-    /* 2. Call PS16 join-mem                                          */
-    /* -------------------------------------------------------------- */
-    message_t *mout = NULL;
-    int rc = groupsig_join_mem(&mout,
-                               (groupsig_key_t *) memKeyPtr,
-                               (int) seq,
-                               min,
-                               (groupsig_key_t *) grpKeyPtr);
-
-    if (min) message_free(min);
-
-    if (rc == IERROR || !mout) {
+    if (!msg) {
         jclass ex = (*env)->FindClass(env, "java/lang/Exception");
-        (*env)->ThrowNew(env, ex, "groupsig_join_mem failed");
-        return NULL;
+        (*env)->ThrowNew(env, ex, "message_from_base64 failed");
+        return 0;
     }
-
-    /* -------------------------------------------------------------- */
-    /* 3. Base-64-encode the payload                                  */
-    /* -------------------------------------------------------------- */
-    char *outB64 = base64_encode(mout->bytes, mout->length, 0);
-    if (!outB64) {
-        message_free(mout);
-        jclass ex = (*env)->FindClass(env, "java/lang/Exception");
-        (*env)->ThrowNew(env, ex, "Base64 encode of output failed");
-        return NULL;
-    }
-
-    jstring jOut = (*env)->NewStringUTF(env, outB64);
-
-    /* tidy-up native allocations */
-    mem_free(outB64);
-    message_free(mout);
-
-    return jOut;
+    return (jlong) msg;
 }
+
 
 static jlong groupsig_gsJoinMgr(JNIEnv *env,
 				jobject obj,
@@ -543,14 +424,14 @@ static jlong groupsig_gsJoinMgr(JNIEnv *env,
   message_t *mout;
   int rc;
   uint8_t start;
-  
+
   (void) env;
   (void) obj;
 
   if (!mgrKeyPtr || !grpKeyPtr) {
     jcls = (*env)->FindClass(env, "java/lang/IllegalArgumentException");
     (*env)->ThrowNew(env, jcls, "Argument cannot be null.");
-    return (jlong) 0;    
+    return (jlong) 0;
   }
 
   mout = NULL;
@@ -568,7 +449,7 @@ static jlong groupsig_gsJoinMgr(JNIEnv *env,
   }
 
   return (jlong) mout;
-  
+
 }
 
 static jint groupsig_gsSign(JNIEnv *env,

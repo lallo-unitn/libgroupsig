@@ -1,6 +1,6 @@
 GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
 libjgroupsig,com.ibm.jgroupsig,Identity,20,39,0,0,5,13,4,6,4,6
-libjgroupsig,com.ibm.jgroupsig,PS16,148,245,8,4,39,65,22,19,16,19
+libjgroupsig,com.ibm.jgroupsig,PS16,124,251,8,4,32,67,20,21,14,21
 libjgroupsig,com.ibm.jgroupsig,BlindSignature,17,57,0,0,4,16,3,6,3,6
 libjgroupsig,com.ibm.jgroupsig,GrpKey,17,53,0,0,4,15,3,5,3,5
 libjgroupsig,com.ibm.jgroupsig,IndexProof,21,68,0,0,4,19,3,6,3,6

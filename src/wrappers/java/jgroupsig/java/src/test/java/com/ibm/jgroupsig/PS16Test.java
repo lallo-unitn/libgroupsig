@@ -35,17 +35,26 @@ public class PS16Test {
 	    return null;
 	}
 
-	long mout2 = this.groupUser.joinMem(memkey, 1, mout1);
+	String message1Base64 = this.groupMgr.messageToBase64(mout1);
+	long message1Ptr = this.groupMgr.messageFromBase64(message1Base64);
+
+	long mout2 = this.groupUser.joinMem(memkey, 1, message1Ptr);
 	if (mout2 == 0) {
 	    return null;
 	}
 
-	long mout3 = this.groupMgr.joinMgr(2, mout2);
+	String message2Base64 = this.groupUser.messageToBase64(mout2);
+    long message2Ptr = this.groupUser.messageFromBase64(message2Base64);
+
+	long mout3 = this.groupMgr.joinMgr(2, message2Ptr);
 	if (mout3 == 0) {
 	    return null;
 	}
 
-	this.groupUser.joinMem(memkey, 3, mout3);
+	String message3Base64 = this.groupMgr.messageToBase64(mout3);
+    long message3Ptr = this.groupMgr.messageFromBase64(message3Base64);
+
+	this.groupUser.joinMem(memkey, 3, message3Ptr);
 
 	return memkey;
 	

@@ -112,7 +112,7 @@ public class PS16 implements GS {
 	throws IllegalArgumentException
     {
 	return groupsig_gsIsSupportedScheme(code);
-    }    
+    }
 
     /**
      * Returns True if the current instance corresponds to a scheme that needs a
@@ -123,40 +123,6 @@ public class PS16 implements GS {
     public boolean hasGml() {
 	return groupsig_gsHasGml(this.code);
     }
-
-    private native String groupsig_gsJoinMemB64(
-            long memKeyPtr, int seq, String inMsgB64, long grpKeyPtr);
-
-    public String joinMemBase64(MemKey memKey,
-                                int     seq,
-                                String  inMsgBase64) {
-        return groupsig_gsJoinMemB64(
-            memKey.getObject(),
-            seq,
-            inMsgBase64,
-            this.grpKey.getObject()
-        );
-    }
-
-
-    private native String groupsig_gsJoinMgrB64(
-                long gmlPtr,
-                long mgrKeyPtr,
-                int seq,
-                String inMsgB64,
-                long grpKeyPtr
-            );
-
-        public String joinMgrBase64(int     seq,
-                                    String  inMsgBase64) {
-            return groupsig_gsJoinMgrB64(
-                this.gml.getObject(),
-                this.mgrKey.getObject(),
-                seq,
-                inMsgBase64,
-                this.grpKey.getObject()
-            );
-        }
 
     /**
      * Runs the setup process for a PS16 group. As a result of a call to 
@@ -248,6 +214,22 @@ public class PS16 implements GS {
 				       this.grpKey.getObject());
 	return mout;
     }
+
+/* === native declarations – names must exactly match JNI === */
+    private static native String groupsig_gsMessageToBase64(long messagePtr);
+    private static native long   groupsig_gsMessageFromBase64(String messageBase64);
+
+    /* === Java wrappers ======================================== */
+    public String messageToBase64(long messagePtr)
+            throws IllegalArgumentException, Exception {
+        return groupsig_gsMessageToBase64(messagePtr);
+    }
+
+    public long messageFromBase64(String messageBase64)
+            throws IllegalArgumentException, Exception {
+        return groupsig_gsMessageFromBase64(messageBase64);
+    }
+
 
     /**
      * Runs the given sequence step of the Issuer side in the membership 
