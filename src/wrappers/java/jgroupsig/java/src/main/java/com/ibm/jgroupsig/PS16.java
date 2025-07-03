@@ -124,14 +124,27 @@ public class PS16 implements GS {
 	return groupsig_gsHasGml(this.code);
     }
 
+    @Override
+        public long joinMem(MemKey memKey,
+    			int seq,
+    			long min)
+    	throws IllegalArgumentException,
+    	       Exception
+        {
+    	long mout = groupsig_gsJoinMem(memKey.getObject(),
+    				       seq,
+    				       min,
+    				       this.grpKey.getObject());
+    	return mout;
+        }
+
     private native String groupsig_gsJoinMemB64(
-            long memKeyPtr, int seq, String inMsgB64, long grpKeyPtr);
+            long memKeyPtr, int seq, String inMsgB64);
 
     public String joinMemBase64(MemKey memKey,
                                 int     seq,
-                                String  inMsgBase64,
-                                GrpKey  grpKey) {
-        return groupsig_gsJoinMemB64(memKey.ptr, seq, inMsgBase64, grpKey.ptr);
+                                String  inMsgBase64) {
+        return groupsig_gsJoinMemB64(memKey.getObject(), seq, inMsgBase64, this.grpKey.getObject());
     }
 
     /**
