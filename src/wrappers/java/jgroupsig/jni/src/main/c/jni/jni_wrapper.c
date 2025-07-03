@@ -1531,6 +1531,7 @@ static jstring groupsig_identityToString(JNIEnv *env, jobject obj, jlong ptr) {
    
   if(!(str = identity_to_string((identity_t *) ptr))) {
     jcls = (*env)->FindClass(env, "java/lang/Exception");
+    int ex = 0;
     (*env)->ThrowNew(env, ex, "Internal error.");
     return NULL;
   }
