@@ -382,7 +382,7 @@ Java_com_ibm_jgroupsig_PS16_groupsig_1gsJoinMgrB64(
     /* -------------------------------------------------------------- */
     message_t *min = NULL;
 
-    if (jMinB64 != NULL) {
+    if (jMinB64 != NULL && seq !=0) {
         const char *minStr = (*env)->GetStringUTFChars(env, jMinB64, 0);
 
         uint64_t inLen  = 0;
@@ -403,6 +403,9 @@ Java_com_ibm_jgroupsig_PS16_groupsig_1gsJoinMgrB64(
             (*env)->ThrowNew(env, ex, "message_from_bytes() failed");
             return NULL;
         }
+
+    } else if (jMinB64 != NULL && seq ==0) {
+        min = 0;
     }
 
     /* -------------------------------------------------------------- */
@@ -417,13 +420,6 @@ Java_com_ibm_jgroupsig_PS16_groupsig_1gsJoinMgrB64(
             min,
             (groupsig_key_t *) grpKeyPtr
         );
-    // rc = groupsig_join_mgr((message_t **) &mout,
-    //        (gml_t *) gmlPtr,
-    //        (groupsig_key_t *) mgrKeyPtr,
-    //        seq,
-    //        (message_t *) minPtr,
-    //        (groupsig_key_t *) grpKeyPtr);
-
 
     if (min) message_free(min);
 
