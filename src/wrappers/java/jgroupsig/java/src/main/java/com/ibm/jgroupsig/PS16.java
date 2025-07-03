@@ -139,12 +139,17 @@ public class PS16 implements GS {
         }
 
     private native String groupsig_gsJoinMemB64(
-            long memKeyPtr, int seq, String inMsgB64);
+            long memKeyPtr, int seq, String inMsgB64, long grpKeyPtr);
 
     public String joinMemBase64(MemKey memKey,
                                 int     seq,
                                 String  inMsgBase64) {
-        return groupsig_gsJoinMemB64(memKey.getObject(), seq, inMsgBase64, this.grpKey.getObject());
+        return groupsig_gsJoinMemB64(
+            memKey.getObject(),
+            seq,
+            inMsgBase64,
+            this.grpKey.getObject()
+        );
     }
 
     /**
