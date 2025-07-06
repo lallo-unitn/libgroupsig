@@ -366,7 +366,7 @@ Java_com_ibm_jgroupsig_PS16_groupsig_1gsMessageToBase64(
         jobject obj,
         jlong   messagePtr)
 {
-    if (!messagePtr) {
+    if (messagePtr == NULL) {
         jclass ex = (*env)->FindClass(env, "java/lang/IllegalArgumentException");
         (*env)->ThrowNew(env, ex, "messagePtr is null");
         return NULL;
@@ -478,7 +478,7 @@ static jint groupsig_gsSign(JNIEnv *env,
 
   if(!(bytes = (byte_t *) malloc(sizeof(byte_t)*msgLen))) {
     jcls = (*env)->FindClass(env, "java/lang/Exception");
-    (*env)->ThrowNew(env, jcls, "Internal error.");
+    (*env)->ThrowNew(env, jcls, "Internal error 1.");
     return (jint) IERROR;
   }
 
@@ -486,7 +486,7 @@ static jint groupsig_gsSign(JNIEnv *env,
   if(!(_msg = message_from_bytes(bytes, (uint64_t) msgLen))) {
     free(bytes); bytes = NULL;
     jcls = (*env)->FindClass(env, "java/lang/Exception");
-    (*env)->ThrowNew(env, jcls, "Internal error.");    
+    (*env)->ThrowNew(env, jcls, "Internal error 2.");
     return IERROR;
   }
 
@@ -501,7 +501,7 @@ static jint groupsig_gsSign(JNIEnv *env,
   
   if (rc == IERROR) {
     jcls = (*env)->FindClass(env, "java/lang/Exception");
-    (*env)->ThrowNew(env, jcls, "Internal error.");
+    (*env)->ThrowNew(env, jcls, "Internal error 3.");
     return (jint) IERROR;
   }
   

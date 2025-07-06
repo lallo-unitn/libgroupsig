@@ -64,8 +64,13 @@ public class PS16Test {
 	throws IllegalArgumentException,
 	       Exception
     {
-	this.groupMgr.setup();
-	this.groupUser.setGrpKey(this.groupMgr.getGrpKey());
+        this.groupMgr.setup();
+        this.groupUser.setGrpKey(
+            new GrpKey(
+                GS.PS16_CODE,
+                this.groupMgr.getGrpKey().export()
+            )
+        );
     }
     
     @Test
