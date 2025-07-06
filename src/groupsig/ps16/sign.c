@@ -47,7 +47,7 @@ int ps16_sign(groupsig_signature_t *sig, message_t *msg, groupsig_key_t *memkey,
      !memkey || memkey->scheme != GROUPSIG_PS16_CODE ||
      !grpkey || grpkey->scheme != GROUPSIG_PS16_CODE) {
     LOG_EINVAL(&logger, __FILE__, "ps16_sign", __LINE__, LOGERROR);
-    return IERROR;
+    return 4;
   }
 
   ps16_sig = sig->sig;
@@ -60,15 +60,15 @@ int ps16_sign(groupsig_signature_t *sig, message_t *msg, groupsig_key_t *memkey,
   rc = IOK;
 
   /* Randomize sigma1 and sigma2 */
-  if (!(t = pbcext_element_Fr_init())) GOTOENDRC(IERROR, ps16_sign);
-  if (pbcext_element_Fr_random(t) == IERROR) GOTOENDRC(IERROR, ps16_sign);
+  if (!(t = pbcext_element_Fr_init())) GOTOENDRC(5, ps16_sign);
+  if (pbcext_element_Fr_random(t) == IERROR) GOTOENDRC(6, ps16_sign);
 
-  if (!(ps16_sig->sigma1 = pbcext_element_G1_init())) GOTOENDRC(IERROR, ps16_sign);
+  if (!(ps16_sig->sigma1 = pbcext_element_G1_init())) GOTOENDRC(7, ps16_sign);
   if (pbcext_element_G1_mul(ps16_sig->sigma1, ps16_memkey->sigma1, t) == IERROR)
-    GOTOENDRC(IERROR, ps16_sign);
-  if (!(ps16_sig->sigma2 = pbcext_element_G1_init())) GOTOENDRC(IERROR, ps16_sign);
+    GOTOENDRC(8, ps16_sign);
+  if (!(ps16_sig->sigma2 = pbcext_element_G1_init())) GOTOENDRC(9, ps16_sign);
   if (pbcext_element_G1_mul(ps16_sig->sigma2, ps16_memkey->sigma2, t) == IERROR)
-    GOTOENDRC(IERROR, ps16_sign);
+    GOTOENDRC(10, ps16_sign);
   
   /* Compute signature of knowledge of sk */
 
@@ -77,50 +77,50 @@ int ps16_sign(groupsig_signature_t *sig, message_t *msg, groupsig_key_t *memkey,
      A good improvement would be to analyze how to generalize spk_dlog
      to fit this. */
   
-  if (!(k = pbcext_element_Fr_init())) GOTOENDRC(IERROR, ps16_sign);
-  if (pbcext_element_Fr_random(k) == IERROR) GOTOENDRC(IERROR, ps16_sign);
+  if (!(k = pbcext_element_Fr_init())) GOTOENDRC(1, ps16_sign);
+  if (pbcext_element_Fr_random(k) == IERROR) GOTOENDRC(12, ps16_sign);
 
-  if (!(e = pbcext_element_GT_init())) GOTOENDRC(IERROR, ps16_sign);
+  if (!(e = pbcext_element_GT_init())) GOTOENDRC(13, ps16_sign);
   if (pbcext_pairing(e, ps16_sig->sigma1, ps16_grpkey->Y) == IERROR)
-    GOTOENDRC(IERROR, ps16_sign);
-  if (pbcext_element_GT_pow(e, e, k) == IERROR) GOTOENDRC(IERROR, ps16_sign);
+    GOTOENDRC(14, ps16_sign);
+  if (pbcext_element_GT_pow(e, e, k) == IERROR) GOTOENDRC(15, ps16_sign);
   
   /* c = hash(ps16_sig->sigma1,ps16_sig->sigma2,e,m) */
-  if (!(aux_c = hash_init(HASH_BLAKE2))) GOTOENDRC(IERROR, ps16_sign);
+  if (!(aux_c = hash_init(HASH_BLAKE2))) GOTOENDRC(16, ps16_sign);
 
   if (pbcext_element_G1_to_bytes(&aux_bytes, &len, ps16_sig->sigma1) == IERROR)
-    GOTOENDRC(IERROR, ps16_sign);
+    GOTOENDRC(17, ps16_sign);
   if (hash_update(aux_c, aux_bytes, len) == IERROR)
-    GOTOENDRC(IERROR, ps16_sign);
+    GOTOENDRC(18, ps16_sign);
   mem_free(aux_bytes); aux_bytes = NULL;    
 
   if (pbcext_element_G1_to_bytes(&aux_bytes, &len, ps16_sig->sigma2) == IERROR)
-    GOTOENDRC(IERROR, ps16_sign);
+    GOTOENDRC(19, ps16_sign);
   if (hash_update(aux_c, aux_bytes, len) == IERROR)
-    GOTOENDRC(IERROR, ps16_sign);
+    GOTOENDRC(20, ps16_sign);
   mem_free(aux_bytes); aux_bytes = NULL;    
 
   if (pbcext_element_GT_to_bytes(&aux_bytes, &len, e) == IERROR)
-    GOTOENDRC(IERROR, ps16_sign);
+    GOTOENDRC(21, ps16_sign);
   if (hash_update(aux_c, aux_bytes, len) == IERROR)
-    GOTOENDRC(IERROR, ps16_sign);
+    GOTOENDRC(22, ps16_sign);
   mem_free(aux_bytes); aux_bytes = NULL;    
 
   if (hash_update(aux_c, msg->bytes, msg->length) == IERROR) 
-    GOTOENDRC(IERROR, ps16_sign);  
+    GOTOENDRC(23, ps16_sign);
 
-  if (hash_finalize(aux_c) == IERROR) GOTOENDRC(IERROR, ps16_sign);
+  if (hash_finalize(aux_c) == IERROR) GOTOENDRC(24, ps16_sign);
 
   /* Complete the sig */
-  if (!(ps16_sig->c = pbcext_element_Fr_init())) GOTOENDRC(IERROR, ps16_sign);
+  if (!(ps16_sig->c = pbcext_element_Fr_init())) GOTOENDRC(25, ps16_sign);
   if (pbcext_element_Fr_from_hash(ps16_sig->c, aux_c->hash, aux_c->length) == IERROR)
-    GOTOENDRC(IERROR, ps16_sign);
+    GOTOENDRC(26, ps16_sign);
 
-  if (!(ps16_sig->s = pbcext_element_Fr_init())) GOTOENDRC(IERROR, ps16_sign);
+  if (!(ps16_sig->s = pbcext_element_Fr_init())) GOTOENDRC(27, ps16_sign);
   if (pbcext_element_Fr_mul(ps16_sig->s, ps16_sig->c, ps16_memkey->sk) == IERROR)
-    GOTOENDRC(IERROR, ps16_sign);
+    GOTOENDRC(28, ps16_sign);
   if (pbcext_element_Fr_add(ps16_sig->s, k, ps16_sig->s) == IERROR)
-    GOTOENDRC(IERROR, ps16_sign);
+    GOTOENDRC(29, ps16_sign);
 
  ps16_sign_end:
 
@@ -130,8 +130,8 @@ int ps16_sign(groupsig_signature_t *sig, message_t *msg, groupsig_key_t *memkey,
   if (aux_c) { hash_free(aux_c); aux_c = NULL; }
   if (aux_bytes) { mem_free(aux_bytes); aux_bytes = NULL; }
 
-  if (rc == IERROR) {
-    
+  if (rc >= 1 && rc <=29) {
+
     if (ps16_sig->c) {
       pbcext_element_Fr_free(ps16_sig->c);
       ps16_sig->c = NULL;
