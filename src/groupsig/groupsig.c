@@ -254,12 +254,12 @@ int groupsig_sign(groupsig_signature_t *sig,
   if(!sig || !msg || !memkey || !grpkey ||
      sig->scheme != memkey->scheme || memkey->scheme != grpkey->scheme) {
     LOG_EINVAL(&logger, __FILE__, "groupsig_sign", __LINE__, LOGERROR);
-    return IERROR;
+    return 2;
   }
 
   /* Get the group signature scheme from its code */
   if(!(gs = groupsig_get_groupsig_from_code(grpkey->scheme))) {
-    return IERROR;
+    return 3;
   }  
 
   /* Run the SIGN action */

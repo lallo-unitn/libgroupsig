@@ -498,6 +498,18 @@ static jint groupsig_gsSign(JNIEnv *env,
 
   message_free(_msg); _msg = NULL;
   free(bytes); bytes = NULL;
+
+    if (rc == 2) {
+        jcls = (*env)->FindClass(env, "java/lang/Exception");
+        (*env)->ThrowNew(env, jcls, "Internal error 4.");
+        return (jint) IERROR;
+    }
+
+    if (rc == 3) {
+        jcls = (*env)->FindClass(env, "java/lang/Exception");
+        (*env)->ThrowNew(env, jcls, "Internal error 5.");
+        return (jint) IERROR;
+    }
   
   if (rc == IERROR) {
     jcls = (*env)->FindClass(env, "java/lang/Exception");
