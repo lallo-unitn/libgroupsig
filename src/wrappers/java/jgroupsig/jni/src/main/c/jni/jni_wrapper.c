@@ -513,7 +513,9 @@ static jint groupsig_gsSign(JNIEnv *env,
 
     if (rc >= 4 && rc <=29) {
         jcls = (*env)->FindClass(env, "java/lang/Exception");
-        (*env)->ThrowNew(env, jcls, rc);
+        char error_msg[64];
+        snprintf(error_msg, sizeof(error_msg), "Internal error: code %d", rc);
+        (*env)->ThrowNew(env, jcls, error_msg);
         return (jint) IERROR;
     }
   
